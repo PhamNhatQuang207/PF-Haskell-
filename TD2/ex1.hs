@@ -1,0 +1,1 @@
+zipWith f xs ys = map(\(x,y)->f x y) (zip xs ys)
