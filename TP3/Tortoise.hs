@@ -50,9 +50,8 @@ filtreSymbolesTortue conf mot =
   let cmds = symbolesTortue conf
   in [c | c <- mot, c `elem` cmds]
 
-type EtatDessin = (EtatTortue, Path)
-
 -- Exercice 8
+type EtatDessin = (EtatTortue, Path)
 interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
 interpreteSymbole conf (etat, path) s =
   case s of
@@ -78,4 +77,6 @@ interpreteMot conf mot =
 
 -- Exemple de dessin
 dessin = interpreteMot (((-150,0),0),100,1,pi/3,"F+-") "F+F--F+F"
-main = display (InWindow "L-système" (1000, 1000) (0, 0)) white dessin
+main = display (InWindow "L-systeme" (1000, 1000) (0, 0)) white dessin
+
+-- Exercise 11 
