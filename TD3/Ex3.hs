@@ -25,7 +25,7 @@ sommaireToStrings :: Sommaire -> [String]
 sommaireToStrings s = concatMap sectionToStrings s
 
 sectionToStrings :: Section -> [String]
-sectionToStrings (Section titre sousSections) = titre : concatMap (map (".." ++).sectionToStrings) sousSections
+sectionToStrings (Section titre sousSections) = titre : concatMap sectionToStrings sousSections
 
 -- Q3.2
 numSommaire :: String -> Sommaire -> Sommaire
