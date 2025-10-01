@@ -8,9 +8,8 @@ dot xs ys = sum (zipWith (*) xs ys)
 
 -- Q5.3: Chuyển vị ma trận
 transpose :: [[a]] -> [[a]]
-transpose [] = []
-transpose ([]:_) = []
-transpose x = map head x : transpose (map tail x)
+transpose [] = repeat []
+transpose (l:l1) = zipWith (:) l (transpose l1)
 
 -- Q5.4: Nhân ma trận
 matMul :: Num a => [[a]] -> [[a]] -> [[a]]
