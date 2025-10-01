@@ -2,28 +2,17 @@ import Data.Ord (Down(Down))
 import Data.List (sortOn)
 import Data.Maybe (mapMaybe)
 
-moyenneCoef :: (Eq a, Fractional a) => [a] -> [a] -> Maybe a
-moyenneCoef coef notes  = if totalCoef == 0 then Nothing else Just (totalNotes / totalCoef)
-  where
-    totalNotes = sum (zipWith (*) notes coef)
-    totalCoef = sum coef
+moyenneCoef :: Fractional a => [a] -> a -> [a] -> a
+moyenneCoef coef t notes = sum (zipWith (*) coef notes) / t 
 
-moyenneEtudiant :: [(String,[(Double,Double)])] -> [(String, Maybe Double)]
-moyenneEtudiant = map (\(nom, notes) -> let (coef,value) = unzip notes
-                   in (nom, moyenneCoef coef value))
+moyenneEtu :: Fractional b => [b] -> [(String, [b])] -> [(String,b)]
+moyenneEtu coef  = map f  
+    where
+        f (nom,notes) = (nom,moyenneCoef coef t notes)
+        t = sum coef
 
--- Return only students with a computed average and sort descending
-ranking :: [(String,[(Double,Double)])] -> [(String, Double)]
-ranking etudiants = let moyennes = moyenneEtudiant etudiants
-                        present = mapMaybe (\(n, m) -> fmap (\v -> (n, v)) m) moyennes
-                    in sortOn (Down . snd) present
+ranking :: Ord a => [(String,a)] -> [(String,a)]
+ranking  = sortOn (Down . snd)
 
-rankingStudentsAverage :: [(String, Double)] -> [(String, Double)]
-rankingStudentsAverage xs = sortOn (Down . snd) xs
-
-groupStudentsAverages :: Ord a => a -> a -> [(String, a)] -> [String]
-groupStudentsAverages n1 n2 xs =
-  let lower = min n1 n2
-      upper = max n1 n2
-      filtered = filter (\(_, avg) -> avg >= lower && avg <= upper) xs
-  in map fst filtered
+groupeEtudiantsNotes :: Ord a => a -> a ->[(String,a)] -> [(String,a)]
+groupeEtudiantsNotes a b = filter (\(_,notes) -> notes <= max a b && notes >= min a b)
