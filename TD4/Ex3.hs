@@ -1,0 +1,4 @@
+-- f :: a -> a -> as
+-- f must be associative and commutative
+-- f (x y) z = f x (y z)
+-- f x y = f y x 

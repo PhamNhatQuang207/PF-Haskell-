@@ -1,0 +1,1 @@
+exApprox x n = foldr (\k acc -> 1 + x / fromIntegral k * acc) 1 [1..n]
