@@ -1,3 +1,4 @@
+import Data.Maybe (isJust)
 data Arbre coul val = Feuille | Noeud (Arbre coul val) coul val (Arbre coul val)
     deriving (Show, Eq)
 data Coul = Rouge | Noir
@@ -29,10 +30,33 @@ peigneGauche [] = Feuille
 peigneGauche ((c,a):xs) = Noeud (peigneGauche xs) c a Feuille
 
 estParfait :: Arbre c a -> Bool
-estParfait t = case hauteur t of
-    0 -> True
-    h -> taille t == 2^h - 1
+estParfait = isJust . check
+    where
+        check :: Arbre c a -> Maybe Int
+        check Feuille = Just 0 
+        check (Noeud g _ _ d) =
+            case (check g, check d) of
+                (Just hg, Just hd) | hg == hd -> Just (1 + hg)
+                _ -> Nothing
 
+-- A generic tree fold.
+foldArbre :: (b -> b -> b) -> b -> Arbre c a -> b
+foldArbre _ leafCase Feuille = leafCase
+foldArbre nodeCase leafCase (Noeud g _ _ d) =
+    nodeCase (foldArbre nodeCase leafCase g) (foldArbre nodeCase leafCase d)
+
+taille'' :: Arbre c a -> Int
+taille'' = foldArbre (\leftSize rightSize -> 1 + leftSize + rightSize) 0
+
+hauteur'' :: Arbre c a -> Int
+hauteur'' = foldArbre (\leftHeight rightHeight -> 1 + max leftHeight rightHeight) 0
+
+estParfait' :: Arbre c a -> Bool
+estParfait' = isJust . foldArbre nodeCase (Just 0)
+    where
+        nodeCase :: Maybe Int -> Maybe Int -> Maybe Int
+        nodeCase (Just h1) (Just h2) | h1 == h2 = Just (1 + h1)
+        nodeCase _ _ = Nothing  
 -- Examples
 f :: Coul -> [Coul]
 f c = [c,c]
