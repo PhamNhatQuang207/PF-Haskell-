@@ -1,4 +1,5 @@
 import Data.Maybe (isJust)
+import Test.QuickCheck
 data Arbre coul val = Feuille | Noeud (Arbre coul val) coul val (Arbre coul val)
     deriving (Show, Eq)
 data Coul = Rouge | Noir
@@ -39,7 +40,6 @@ estParfait = isJust . check
                 (Just hg, Just hd) | hg == hd -> Just (1 + hg)
                 _ -> Nothing
 
--- A generic tree fold.
 foldArbre :: (b -> b -> b) -> b -> Arbre c a -> b
 foldArbre _ leafCase Feuille = leafCase
 foldArbre nodeCase leafCase (Noeud g _ _ d) =
@@ -57,6 +57,41 @@ estParfait' = isJust . foldArbre nodeCase (Just 0)
         nodeCase :: Maybe Int -> Maybe Int -> Maybe Int
         nodeCase (Just h1) (Just h2) | h1 == h2 = Just (1 + h1)
         nodeCase _ _ = Nothing  
+        
+
+isLeftComb :: Arbre c a -> Bool
+isLeftComb Feuille = True
+isLeftComb (Noeud g _ _ Feuille) = isLeftComb g 
+isLeftComb _ = False
+
+
+parfait :: Int -> [(c, a)] -> Arbre c a
+parfait 0 _ = Feuille
+parfait n xs = Noeud (parfait (n-1) gauche) c a (parfait (n-1) droite)
+  where
+    (gauche, (c, a):droite) = splitAt (length xs `div` 2) xs
+
+repete :: a -> [a]
+repete x = x : repete x
+
+repete' :: a -> [a]
+repete' x = iterate id x
+
+listeTuples :: [ ((), Char) ]
+listeTuples = zip (repeat ()) ['a'..]
+
+aplatit :: Arbre c a -> [(c, a)]
+aplatit Feuille = []
+aplatit (Noeud g c a d) = aplatit g ++ [(c, a)] ++ aplatit d
+
+element :: Eq a => a -> Arbre c a -> Bool
+element _ Feuille = False
+element x (Noeud g c a d)
+    | x `elem` l = True
+    | otherwise = False
+    where
+        l = aplatit (Noeud g c a d)
+
 -- Examples
 f :: Coul -> [Coul]
 f c = [c,c]
@@ -66,3 +101,30 @@ monArbre :: Arbre Coul Int
 monArbre = Noeud (Noeud Feuille Rouge 5 Feuille) Noir 10 (Noeud Feuille Rouge 20 (Noeud Feuille Noir 25 Feuille))
 parfaitArbre :: Arbre Coul Int
 parfaitArbre = Noeud (Noeud Feuille Rouge 1 Feuille) Noir 2 (Noeud Feuille Rouge 3 Feuille)
+
+listArbre = [((),'a'),((),'b'),((),'c')]
+
+-- Test QuickCheck
+prop_hauteurPeigne xs = length xs == hauteur (peigneGauche xs)
+
+type C = ()
+type A = Int
+
+instance (Arbitrary c, Arbitrary a) => Arbitrary (Arbre c a) where
+  arbitrary = sized createTree
+    where
+      createTree n
+        | n <= 0    = return Feuille
+        | otherwise = frequency
+            [ (1, return Feuille)
+            , (4, Noeud <$> resize (n `div` 2) arbitrary 
+                         <*> arbitrary 
+                         <*> arbitrary 
+                         <*> resize (n `div` 2) arbitrary) 
+            ]
+
+prop_perfectCombIsTrivial :: Arbre C A -> Property
+prop_perfectCombIsTrivial tree =
+    (estParfait tree && isLeftComb tree) ==> (hauteur tree <= 1)
+
+parfait4 = parfait 4 (take 15 listeTuples) 
