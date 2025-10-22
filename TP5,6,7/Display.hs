@@ -78,16 +78,16 @@ elementR x (Noeud g _ v d)
     | otherwise = elementR x d  -- 3. It's larger, so search the right subtree
 
 -- Inserts a value into the R-B Tree and ensures the root is black
-insert :: (Ord a) => a -> Arbre coul a -> Arbre coul a
+insert :: (Ord a) => a -> Arbre Coul a -> Arbre Coul a
 insert x t = noircir (ins x t)
 
 -- Helper to force the root of a tree to be Black
-noircir :: Arbre coul a -> Arbre coul a
+noircir :: Arbre Coul a -> Arbre Coul a
 noircir Feuille = Feuille
 noircir (Noeud g _ v d) = Noeud g Noir v d
 
 -- Recursive helper for insertion
-ins :: (Ord a) => a -> Arbre coul a -> Arbre coul a
+ins :: (Ord a) => a -> Arbre Coul a -> Arbre Coul a
 -- Rule 2: If the tree is empty, insert a new RED node
 ins x Feuille = Noeud Feuille Rouge x Feuille
 -- Deconstruct the current node
@@ -100,7 +100,7 @@ ins x (Noeud g c v d)
     | otherwise = equilibre (Noeud g c v (ins x d))
 
 -- The rebalancing function
-equilibre :: Arbre coul a -> Arbre coul a
+equilibre :: Arbre Coul a -> Arbre Coul a
 -- Pattern 1: Left-Left (LL) violation
 equilibre (Noeud (Noeud (Noeud a Rouge x b) Rouge y c) Noir z d) =
     Noeud (Noeud a Noir x b) Rouge y (Noeud c Noir z d)
