@@ -66,8 +66,7 @@ codeH arbre = \target -> find target arbre
     find target (Noeud g d) =
       (fmap (G:) (find target g))
       <|> (fmap (D:) (find target d))
-      <|> (fmap (D:) (find target d))
-
+      
 codeListeH :: (Eq a) => ArbreH a -> ([a] -> Maybe Codes)
 codeListeH arbre = \valList ->
   let coderFunc = codeH arbre
