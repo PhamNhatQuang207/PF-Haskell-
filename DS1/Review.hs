@@ -3,12 +3,13 @@ monExp a n = go a 1 n
         go a acc 0 = acc
         go a acc n = go a (a*acc) (n-1) 
 
+monExp' a 0 = 1
 monExp' a n 
     | r == 1 = a * half * half
     | otherwise = half * half
     where
         (q,r) = quotRem n 2
-        half = monExp a q
+        half = monExp' a q
 
 data ABR a = N a (ABR a) (ABR a) | L
 
