@@ -26,7 +26,7 @@ applique ::[Expression] -> Expression
 applique = foldl1 App
 
 exprP :: Parser Expression
-exprP = exprParentheseeP <|> lambdaP <|> varP
+exprP = exprParentheseeP <|> lambdaP <|> varP <|> nombreP <|> boolP
 
 exprsP :: Parser Expression
 exprsP = some exprP >>= \es -> pure (applique es)
@@ -35,8 +35,7 @@ lambdaP :: Parser Expression
 lambdaP = do
     car '\\'    >> espacesP
     x  <- nomP
-    car '-'     >> espacesP
-    car '>'     >> espacesP
+    chaine "->" >> espacesP
     e  <- exprsP
     pure (Lam x e)
 
@@ -58,7 +57,7 @@ boolP = (chaine "True"  >> espacesP >> pure (Lit (Bool True)))
     <|> (chaine "False" >> espacesP >> pure (Lit (Bool False)))
 
 expressionP :: Parser Expression
-expressionP = espacesP >> (boolP <|> nombreP <|> exprsP)
+expressionP = espacesP >> exprsP
 
 ras :: String -> Expression
 ras s = resultat (runParser expressionP s)
