@@ -1,6 +1,5 @@
 import Parser
-import Data.Char (isSpace)
-import Parser (chaine)
+import Data.Char (isSpace, isDigit)
 import Control.Applicative (Alternative(many))
 data JSON = JsonNull -- Valeur null
         | JsonBool Bool -- Booléens
