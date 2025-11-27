@@ -61,5 +61,26 @@ expressionP = espacesP >> exprsP
 
 ras :: String -> Expression
 ras s = resultat (runParser expressionP s)
-    where resultat (Just (r, "")) = r
-          resultat _               = error "Error analyse syntax"
+
+data ValeurA = VLitteralA Litteral
+             | VFonctionA (ValeurA -> ValeurA)
+
+instance Show ValeurA where
+    show (VFonctionA _) = "λ"
+    show (VLitteralA (Bool True)) = "True"
+    show (VLitteralA (Bool False)) = "False"
+    show (VLitteralA (Entier a)) = show a
+
+type Environnement a = [(Nom, a)]
+
+interpreteA :: Environnement ValeurA -> Expression -> ValeurA
+interpreteA env (Lit l) = VLitteralA l
+interpreteA env (Var n) = case lookup n env of
+                             Just v  -> v
+                             Nothing -> error ("Variable non définie: " ++ n)
+interpreteA env (Lam n e) = VFonctionA (\v -> interpreteA ((n,v):env) e)
+interpreteA env (App e1 e2) =
+    case interpreteA env e1 of
+        VFonctionA f -> f (interpreteA env e2)
+        _            -> error "Tentative d'application d'une valeur non fonctionnelle"
+        
