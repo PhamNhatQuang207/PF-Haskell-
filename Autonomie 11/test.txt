@@ -1,0 +1,3 @@
+Bonjour, Marcel !
+Aujourd'hui, il fait 12 degrés.
+Vivant: True
